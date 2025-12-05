@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react"; // Adicionamos useEffect para salvar
 import { MissionCard } from "@/components/MissionCard";
 import { ProgressBar } from "@/components/ProgressBar";
 import { AddMissionForm } from "@/components/AddMissionForm";
@@ -13,13 +13,20 @@ interface Mission {
 }
 
 const Index = () => {
-  const [missions, setMissions] = useState<Mission[]>([
-    { id: "1", title: "Fazer exercícios pela manhã", completed: false, category: "saude" },
-    { id: "2", title: "Ler 30 páginas de um livro", completed: false, category: "estudos" },
-    { id: "3", title: "Trabalhar no projeto pessoal", completed: false, category: "trabalho" },
-  ]);
+  // 1. AQUI MUDOU: O app tenta buscar dados salvos. Se não tiver, começa VAZIO [].
+  const [missions, setMissions] = useState<Mission[]>(() => {
+    const saved = localStorage.getItem("minhas-missoes");
+    if (saved) {
+      return JSON.parse(saved);
+    }
+    return []; // Começa sem nenhuma missão!
+  });
 
-  // Função para Marcar como Feito/Não Feito
+  // 2. NOVO: Toda vez que "missions" mudar, salva no navegador automaticamente
+  useEffect(() => {
+    localStorage.setItem("minhas-missoes", JSON.stringify(missions));
+  }, [missions]);
+
   const handleToggleMission = (id: string) => {
     setMissions((prev) =>
       prev.map((mission) =>
@@ -30,13 +37,11 @@ const Index = () => {
     );
   };
 
-  // Função para EXCLUIR a missão (Aqui está o que você queria!)
   const handleDeleteMission = (id: string) => {
     setMissions((prev) => prev.filter((mission) => mission.id !== id));
-    toast.success("Missão removida com sucesso!");
+    toast.success("Missão removida!");
   };
 
-  // Função para ADICIONAR nova missão com categoria
   const handleAddMission = (title: string, category: string) => {
     const newMission: Mission = {
       id: Date.now().toString(),
@@ -45,7 +50,7 @@ const Index = () => {
       category,
     };
     setMissions((prev) => [...prev, newMission]);
-    toast.success("Nova missão adicionada!");
+    toast.success("Missão criada!");
   };
 
   const completedCount = missions.filter((m) => m.completed).length;
@@ -63,7 +68,7 @@ const Index = () => {
               Missões do Dia
             </h1>
             <p className="text-lg text-muted-foreground">
-              Transforme seus objetivos em conquistas diárias
+              Defina suas próprias metas e conquiste o dia!
             </p>
           </div>
         </div>
@@ -75,7 +80,7 @@ const Index = () => {
           </div>
         </div>
 
-        {/* Formulário para Adicionar */}
+        {/* Formulário */}
         <div className="animate-in fade-in slide-in-from-bottom duration-700 delay-200">
           <AddMissionForm onAdd={handleAddMission} />
         </div>
@@ -83,9 +88,10 @@ const Index = () => {
         {/* Lista de Missões */}
         <div className="space-y-3 animate-in fade-in slide-in-from-bottom duration-700 delay-300">
           {missions.length === 0 ? (
-            <div className="text-center py-12">
+            <div className="text-center py-12 bg-card/50 rounded-xl border border-dashed border-muted-foreground/25">
               <p className="text-muted-foreground text-lg">
-                Nenhuma missão pendente. Adicione uma para começar!
+                Sua lista está vazia. <br/>
+                <span className="text-sm">Adicione uma nova missão acima para começar! 🚀</span>
               </p>
             </div>
           ) : (
