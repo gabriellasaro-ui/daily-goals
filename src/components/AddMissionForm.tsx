@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Plus, Tag } from "lucide-react";
 
-// 1. Definição das categorias e cores
 const CATEGORIES = [
   { id: "trabalho", label: "Trabalho", color: "bg-blue-500 hover:bg-blue-600", text: "text-blue-500" },
   { id: "saude", label: "Saúde", color: "bg-green-500 hover:bg-green-600", text: "text-green-500" },
@@ -12,22 +11,19 @@ const CATEGORIES = [
 ];
 
 interface AddMissionFormProps {
-  // Atualizamos a tipagem para aceitar título e categoria
   onAdd: (title: string, category: string) => void;
 }
 
 export const AddMissionForm = ({ onAdd }: AddMissionFormProps) => {
   const [title, setTitle] = useState("");
-  // 2. Novo estado para a categoria (padrão: 'outros')
   const [selectedCategory, setSelectedCategory] = useState(CATEGORIES[3].id);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (title.trim()) {
-      // Passamos o título E a categoria selecionada
       onAdd(title.trim(), selectedCategory);
       setTitle("");
-      setSelectedCategory("outros"); // Reseta para o padrão
+      setSelectedCategory("outros");
     }
   };
 
@@ -51,7 +47,6 @@ export const AddMissionForm = ({ onAdd }: AddMissionFormProps) => {
         </Button>
       </div>
 
-      {/* 3. Seletor de Categorias Visual */}
       <div className="flex gap-2 items-center overflow-x-auto pb-1">
         <span className="text-sm text-gray-500 flex items-center mr-2">
           <Tag className="w-4 h-4 mr-1" /> Tipo:
@@ -59,7 +54,7 @@ export const AddMissionForm = ({ onAdd }: AddMissionFormProps) => {
         {CATEGORIES.map((cat) => (
           <button
             key={cat.id}
-            type="button" // Importante ser type button para não enviar o form
+            type="button"
             onClick={() => setSelectedCategory(cat.id)}
             className={`
               px-3 py-1 rounded-full text-xs font-semibold transition-all border
