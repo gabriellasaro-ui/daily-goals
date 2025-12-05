@@ -2,9 +2,9 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { 
-  BadgeCheck, // Ícone de verificado
-  Circle, // Ícone de não feito
-  Trash2, // Ícone de lixeira
+  BadgeCheck, 
+  Circle, 
+  Trash2, 
   Briefcase, 
   Heart, 
   BookOpen, 
@@ -25,17 +25,18 @@ interface MissionCardProps {
     id: string;
     title: string;
     completed: boolean;
-    category?: string; // Agora aceita a categoria (opcional para evitar erros com dados antigos)
+    category?: string;
   };
   onToggle: (id: string) => void;
-  onDelete: (id: string) => void; // Nova função para deletar
+  onDelete: (id: string) => void; // <-- O ERRO GERALMENTE É A FALTA DISSO AQUI
 }
 
 export const MissionCard = ({ mission, onToggle, onDelete }: MissionCardProps) => {
   const [isAnimating, setIsAnimating] = useState(false);
 
-  // Pega a configuração da categoria ou usa "outros" como padrão
-  const categoryStyle = CATEGORY_CONFIG[mission.category || "outros"] || CATEGORY_CONFIG["outros"];
+  // Garante que sempre tenha uma categoria válida
+  const categoryKey = mission.category && CATEGORY_CONFIG[mission.category] ? mission.category : "outros";
+  const categoryStyle = CATEGORY_CONFIG[categoryKey];
   const CategoryIcon = categoryStyle.icon;
 
   const handleToggle = () => {
@@ -57,7 +58,6 @@ export const MissionCard = ({ mission, onToggle, onDelete }: MissionCardProps) =
       )}
     >
       <div className="flex items-center gap-4">
-        {/* Botão de Concluir / Verificar */}
         <Button
           variant="ghost"
           size="icon"
@@ -76,7 +76,6 @@ export const MissionCard = ({ mission, onToggle, onDelete }: MissionCardProps) =
           )}
         </Button>
 
-        {/* Conteúdo: Título e Categoria */}
         <div className="flex-1 flex flex-col gap-1 min-w-0">
           <span
             className={cn(
@@ -87,7 +86,6 @@ export const MissionCard = ({ mission, onToggle, onDelete }: MissionCardProps) =
             {mission.title}
           </span>
           
-          {/* Badge da Categoria */}
           <div className="flex items-center gap-1.5">
             <span className={cn("flex items-center px-2 py-0.5 rounded-full text-xs font-medium gap-1", categoryStyle.bg, categoryStyle.color)}>
               <CategoryIcon className="w-3 h-3" />
