@@ -16,7 +16,7 @@ interface AddMissionFormProps {
 
 export const AddMissionForm = ({ onAdd }: AddMissionFormProps) => {
   const [title, setTitle] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState(CATEGORIES[3].id);
+  const [selectedCategory, setSelectedCategory] = useState(CATEGORIES[3].id); // Começa com "Outros"
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,6 +47,7 @@ export const AddMissionForm = ({ onAdd }: AddMissionFormProps) => {
         </Button>
       </div>
 
+      {/* Botões de Categoria */}
       <div className="flex gap-2 items-center overflow-x-auto pb-1">
         <span className="text-sm text-gray-500 flex items-center mr-2">
           <Tag className="w-4 h-4 mr-1" /> Tipo:
