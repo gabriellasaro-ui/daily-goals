@@ -3,18 +3,20 @@ import { MissionCard } from "@/components/MissionCard";
 import { ProgressBar } from "@/components/ProgressBar";
 import { AddMissionForm } from "@/components/AddMissionForm";
 import { Target } from "lucide-react";
+import { toast } from "sonner"; 
 
 interface Mission {
   id: string;
   title: string;
   completed: boolean;
+  category?: string;
 }
 
 const Index = () => {
   const [missions, setMissions] = useState<Mission[]>([
-    { id: "1", title: "Fazer exercícios pela manhã", completed: false },
-    { id: "2", title: "Ler 30 páginas de um livro", completed: false },
-    { id: "3", title: "Trabalhar no projeto pessoal", completed: false },
+    { id: "1", title: "Fazer exercícios pela manhã", completed: false, category: "saude" },
+    { id: "2", title: "Ler 30 páginas de um livro", completed: false, category: "estudos" },
+    { id: "3", title: "Trabalhar no projeto pessoal", completed: false, category: "trabalho" },
   ]);
 
   const handleToggleMission = (id: string) => {
@@ -27,13 +29,21 @@ const Index = () => {
     );
   };
 
-  const handleAddMission = (title: string) => {
+  // Função que remove a missão da lista
+  const handleDeleteMission = (id: string) => {
+    setMissions((prev) => prev.filter((mission) => mission.id !== id));
+    toast.success("Missão removida com sucesso!");
+  };
+
+  const handleAddMission = (title: string, category: string) => {
     const newMission: Mission = {
       id: Date.now().toString(),
       title,
       completed: false,
+      category,
     };
     setMissions((prev) => [...prev, newMission]);
+    toast.success("Nova missão adicionada!");
   };
 
   const completedCount = missions.filter((m) => m.completed).length;
@@ -73,7 +83,7 @@ const Index = () => {
           {missions.length === 0 ? (
             <div className="text-center py-12">
               <p className="text-muted-foreground text-lg">
-                Adicione sua primeira missão para começar!
+                Nenhuma missão pendente. Adicione uma para começar!
               </p>
             </div>
           ) : (
@@ -82,6 +92,7 @@ const Index = () => {
                 key={mission.id}
                 mission={mission}
                 onToggle={handleToggleMission}
+                onDelete={handleDeleteMission} 
               />
             ))
           )}
