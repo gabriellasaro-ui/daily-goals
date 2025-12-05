@@ -12,7 +12,6 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-// Configuração visual das categorias
 const CATEGORY_CONFIG: Record<string, { label: string; icon: any; color: string; bg: string }> = {
   trabalho: { label: "Trabalho", icon: Briefcase, color: "text-blue-500", bg: "bg-blue-100" },
   saude: { label: "Saúde", icon: Heart, color: "text-green-500", bg: "bg-green-100" },
@@ -28,13 +27,13 @@ interface MissionCardProps {
     category?: string;
   };
   onToggle: (id: string) => void;
-  onDelete: (id: string) => void; // <-- O ERRO GERALMENTE É A FALTA DISSO AQUI
+  onDelete: (id: string) => void; 
 }
 
 export const MissionCard = ({ mission, onToggle, onDelete }: MissionCardProps) => {
   const [isAnimating, setIsAnimating] = useState(false);
 
-  // Garante que sempre tenha uma categoria válida
+  // Garante que se não tiver categoria, usa "outros"
   const categoryKey = mission.category && CATEGORY_CONFIG[mission.category] ? mission.category : "outros";
   const categoryStyle = CATEGORY_CONFIG[categoryKey];
   const CategoryIcon = categoryStyle.icon;
@@ -58,6 +57,7 @@ export const MissionCard = ({ mission, onToggle, onDelete }: MissionCardProps) =
       )}
     >
       <div className="flex items-center gap-4">
+        {/* Botão de Check */}
         <Button
           variant="ghost"
           size="icon"
@@ -76,6 +76,7 @@ export const MissionCard = ({ mission, onToggle, onDelete }: MissionCardProps) =
           )}
         </Button>
 
+        {/* Texto da Missão */}
         <div className="flex-1 flex flex-col gap-1 min-w-0">
           <span
             className={cn(
@@ -86,6 +87,7 @@ export const MissionCard = ({ mission, onToggle, onDelete }: MissionCardProps) =
             {mission.title}
           </span>
           
+          {/* Etiqueta da Categoria */}
           <div className="flex items-center gap-1.5">
             <span className={cn("flex items-center px-2 py-0.5 rounded-full text-xs font-medium gap-1", categoryStyle.bg, categoryStyle.color)}>
               <CategoryIcon className="w-3 h-3" />
@@ -94,7 +96,7 @@ export const MissionCard = ({ mission, onToggle, onDelete }: MissionCardProps) =
           </div>
         </div>
 
-        {/* Botão de Excluir */}
+        {/* Botão de Excluir (Lixeira) */}
         <Button
           variant="ghost"
           size="icon"
