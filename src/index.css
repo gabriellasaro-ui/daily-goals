@@ -3,13 +3,13 @@ import { MissionCard } from "@/components/MissionCard";
 import { ProgressBar } from "@/components/ProgressBar";
 import { AddMissionForm } from "@/components/AddMissionForm";
 import { Target } from "lucide-react";
-import { toast } from "sonner"; // Importamos para dar feedback visual
+import { toast } from "sonner"; 
 
 interface Mission {
   id: string;
   title: string;
   completed: boolean;
-  category?: string; // Adicionamos a categoria (opcional para compatibilidade)
+  category?: string;
 }
 
 const Index = () => {
@@ -29,19 +29,17 @@ const Index = () => {
     );
   };
 
-  // 1. Função para EXCLUIR a missão
   const handleDeleteMission = (id: string) => {
     setMissions((prev) => prev.filter((mission) => mission.id !== id));
     toast.success("Missão removida com sucesso!");
   };
 
-  // 2. Atualizamos para receber o Título E a Categoria
   const handleAddMission = (title: string, category: string) => {
     const newMission: Mission = {
       id: Date.now().toString(),
       title,
       completed: false,
-      category, // Salvamos a categoria escolhida
+      category,
     };
     setMissions((prev) => [...prev, newMission]);
     toast.success("Nova missão adicionada!");
@@ -93,7 +91,7 @@ const Index = () => {
                 key={mission.id}
                 mission={mission}
                 onToggle={handleToggleMission}
-                onDelete={handleDeleteMission} // 3. Passamos a função para o Card
+                onDelete={handleDeleteMission} 
               />
             ))
           )}
