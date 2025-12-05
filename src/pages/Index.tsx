@@ -19,6 +19,7 @@ const Index = () => {
     { id: "3", title: "Trabalhar no projeto pessoal", completed: false, category: "trabalho" },
   ]);
 
+  // Função para Marcar como Feito/Não Feito
   const handleToggleMission = (id: string) => {
     setMissions((prev) =>
       prev.map((mission) =>
@@ -29,12 +30,13 @@ const Index = () => {
     );
   };
 
-  // Função que remove a missão da lista
+  // Função para EXCLUIR a missão (Aqui está o que você queria!)
   const handleDeleteMission = (id: string) => {
     setMissions((prev) => prev.filter((mission) => mission.id !== id));
     toast.success("Missão removida com sucesso!");
   };
 
+  // Função para ADICIONAR nova missão com categoria
   const handleAddMission = (title: string, category: string) => {
     const newMission: Mission = {
       id: Date.now().toString(),
@@ -51,7 +53,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background py-8 px-4">
       <div className="max-w-3xl mx-auto space-y-8">
-        {/* Header */}
+        {/* Cabeçalho */}
         <div className="text-center space-y-4 animate-in fade-in slide-in-from-top duration-700">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-primary/70 shadow-lg">
             <Target className="h-8 w-8 text-primary-foreground" />
@@ -66,19 +68,19 @@ const Index = () => {
           </div>
         </div>
 
-        {/* Progress Section */}
+        {/* Barra de Progresso */}
         <div className="animate-in fade-in slide-in-from-top duration-700 delay-100">
           <div className="bg-card rounded-2xl p-6 shadow-lg border border-border">
             <ProgressBar completed={completedCount} total={missions.length} />
           </div>
         </div>
 
-        {/* Add Mission Form */}
+        {/* Formulário para Adicionar */}
         <div className="animate-in fade-in slide-in-from-bottom duration-700 delay-200">
           <AddMissionForm onAdd={handleAddMission} />
         </div>
 
-        {/* Missions List */}
+        {/* Lista de Missões */}
         <div className="space-y-3 animate-in fade-in slide-in-from-bottom duration-700 delay-300">
           {missions.length === 0 ? (
             <div className="text-center py-12">
