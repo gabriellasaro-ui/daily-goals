@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"; // Adicionamos useEffect para salvar
+import { useState, useEffect } from "react";
 import { MissionCard } from "@/components/MissionCard";
 import { ProgressBar } from "@/components/ProgressBar";
 import { AddMissionForm } from "@/components/AddMissionForm";
@@ -13,16 +13,14 @@ interface Mission {
 }
 
 const Index = () => {
-  // 1. AQUI MUDOU: O app tenta buscar dados salvos. Se não tiver, começa VAZIO [].
   const [missions, setMissions] = useState<Mission[]>(() => {
     const saved = localStorage.getItem("minhas-missoes");
     if (saved) {
       return JSON.parse(saved);
     }
-    return []; // Começa sem nenhuma missão!
+    return []; 
   });
 
-  // 2. NOVO: Toda vez que "missions" mudar, salva no navegador automaticamente
   useEffect(() => {
     localStorage.setItem("minhas-missoes", JSON.stringify(missions));
   }, [missions]);
@@ -41,6 +39,19 @@ const Index = () => {
     setMissions((prev) => prev.filter((mission) => mission.id !== id));
     toast.success("Missão removida!");
   };
+
+  // --- NOVA FUNÇÃO DE EDITAR ---
+  const handleEditMission = (id: string, newTitle: string, newCategory: string) => {
+    setMissions((prev) =>
+      prev.map((mission) =>
+        mission.id === id
+          ? { ...mission, title: newTitle, category: newCategory }
+          : mission
+      )
+    );
+    toast.success("Missão atualizada com sucesso!");
+  };
+  // -----------------------------
 
   const handleAddMission = (title: string, category: string) => {
     const newMission: Mission = {
@@ -101,6 +112,7 @@ const Index = () => {
                 mission={mission}
                 onToggle={handleToggleMission}
                 onDelete={handleDeleteMission} 
+                onEdit={handleEditMission} // Passamos a nova função aqui
               />
             ))
           )}
