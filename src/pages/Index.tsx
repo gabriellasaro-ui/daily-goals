@@ -10,6 +10,7 @@ interface Mission {
   title: string;
   completed: boolean;
   category?: string;
+  date?: string; // Novo campo de data
 }
 
 const Index = () => {
@@ -40,25 +41,24 @@ const Index = () => {
     toast.success("Missão removida!");
   };
 
-  // --- NOVA FUNÇÃO DE EDITAR ---
-  const handleEditMission = (id: string, newTitle: string, newCategory: string) => {
+  const handleEditMission = (id: string, newTitle: string, newCategory: string, newDate: string) => {
     setMissions((prev) =>
       prev.map((mission) =>
         mission.id === id
-          ? { ...mission, title: newTitle, category: newCategory }
+          ? { ...mission, title: newTitle, category: newCategory, date: newDate }
           : mission
       )
     );
-    toast.success("Missão atualizada com sucesso!");
+    toast.success("Missão atualizada!");
   };
-  // -----------------------------
 
-  const handleAddMission = (title: string, category: string) => {
+  const handleAddMission = (title: string, category: string, date: string) => {
     const newMission: Mission = {
       id: Date.now().toString(),
       title,
       completed: false,
       category,
+      date,
     };
     setMissions((prev) => [...prev, newMission]);
     toast.success("Missão criada!");
@@ -69,7 +69,6 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background py-8 px-4">
       <div className="max-w-3xl mx-auto space-y-8">
-        {/* Cabeçalho */}
         <div className="text-center space-y-4 animate-in fade-in slide-in-from-top duration-700">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-primary/70 shadow-lg">
             <Target className="h-8 w-8 text-primary-foreground" />
@@ -84,19 +83,16 @@ const Index = () => {
           </div>
         </div>
 
-        {/* Barra de Progresso */}
         <div className="animate-in fade-in slide-in-from-top duration-700 delay-100">
           <div className="bg-card rounded-2xl p-6 shadow-lg border border-border">
             <ProgressBar completed={completedCount} total={missions.length} />
           </div>
         </div>
 
-        {/* Formulário */}
         <div className="animate-in fade-in slide-in-from-bottom duration-700 delay-200">
           <AddMissionForm onAdd={handleAddMission} />
         </div>
 
-        {/* Lista de Missões */}
         <div className="space-y-3 animate-in fade-in slide-in-from-bottom duration-700 delay-300">
           {missions.length === 0 ? (
             <div className="text-center py-12 bg-card/50 rounded-xl border border-dashed border-muted-foreground/25">
@@ -112,7 +108,7 @@ const Index = () => {
                 mission={mission}
                 onToggle={handleToggleMission}
                 onDelete={handleDeleteMission} 
-                onEdit={handleEditMission} // Passamos a nova função aqui
+                onEdit={handleEditMission}
               />
             ))
           )}
