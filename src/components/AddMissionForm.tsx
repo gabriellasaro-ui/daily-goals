@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, Tag } from "lucide-react";
+import { Plus, Tag, Calendar } from "lucide-react";
 
 const CATEGORIES = [
   { id: "trabalho", label: "Trabalho", color: "bg-blue-500 hover:bg-blue-600", text: "text-blue-500" },
@@ -11,57 +11,60 @@ const CATEGORIES = [
 ];
 
 interface AddMissionFormProps {
-  onAdd: (title: string, category: string) => void;
+  onAdd: (title: string, category: string, date: string) => void;
 }
 
 export const AddMissionForm = ({ onAdd }: AddMissionFormProps) => {
   const [title, setTitle] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState(CATEGORIES[3].id); // Começa com "Outros"
+  const [date, setDate] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState(CATEGORIES[3].id);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (title.trim()) {
-      onAdd(title.trim(), selectedCategory);
+      // Se não escolher data, usa a de hoje
+      const missionDate = date || new Date().toISOString().split('T')[0];
+      onAdd(title.trim(), selectedCategory, missionDate);
       setTitle("");
+      setDate("");
       setSelectedCategory("outros");
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-3 bg-card p-4 rounded-xl border shadow-sm">
       <div className="flex gap-2">
         <Input
           type="text"
-          placeholder="Nova missão do dia..."
+          placeholder="Nova missão..."
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          className="flex-1 h-12 text-base border-2 focus-visible:ring-primary"
+          className="flex-1 h-10"
         />
-        <Button
-          type="submit"
-          size="lg"
-          className="h-12 px-6 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 transition-all duration-300"
-        >
-          <Plus className="h-5 w-5 mr-2" />
-          Adicionar
+        <div className="relative">
+            <Input 
+                type="date" 
+                value={date} 
+                onChange={(e) => setDate(e.target.value)}
+                className="w-auto h-10"
+            />
+        </div>
+        <Button type="submit" size="icon" className="h-10 w-10 bg-primary hover:bg-primary/90">
+          <Plus className="h-5 w-5" />
         </Button>
       </div>
 
-      {/* Botões de Categoria */}
-      <div className="flex gap-2 items-center overflow-x-auto pb-1">
-        <span className="text-sm text-gray-500 flex items-center mr-2">
-          <Tag className="w-4 h-4 mr-1" /> Tipo:
-        </span>
+      <div className="flex gap-2 items-center overflow-x-auto pb-1 no-scrollbar">
         {CATEGORIES.map((cat) => (
           <button
             key={cat.id}
             type="button"
             onClick={() => setSelectedCategory(cat.id)}
             className={`
-              px-3 py-1 rounded-full text-xs font-semibold transition-all border
+              px-3 py-1 rounded-full text-xs font-semibold transition-all border flex-shrink-0
               ${
                 selectedCategory === cat.id
-                  ? `${cat.color} text-white border-transparent shadow-md scale-105`
+                  ? `${cat.color} text-white border-transparent shadow-sm`
                   : `bg-white ${cat.text} border-gray-200 hover:bg-gray-50`
               }
             `}
