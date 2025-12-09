@@ -13,7 +13,11 @@ import {
   Heart, 
   BookOpen, 
   Tag,
-  CalendarDays
+  CalendarDays,
+  ChevronUp,
+  ChevronDown,
+  AlertTriangle,
+  Minus
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -24,6 +28,12 @@ const CATEGORY_CONFIG: Record<string, { label: string; icon: any; color: string;
   outros: { label: "Geral", icon: Tag, color: "text-gray-500", bg: "bg-gray-100" },
 };
 
+const PRIORITY_CONFIG: Record<string, { label: string; icon: any; color: string; bg: string }> = {
+  alta: { label: "Alta", icon: AlertTriangle, color: "text-red-500", bg: "bg-red-100" },
+  media: { label: "Média", icon: Minus, color: "text-yellow-600", bg: "bg-yellow-100" },
+  baixa: { label: "Baixa", icon: ChevronDown, color: "text-emerald-500", bg: "bg-emerald-100" },
+};
+
 interface MissionCardProps {
   mission: {
     id: string;
@@ -31,13 +41,17 @@ interface MissionCardProps {
     completed: boolean;
     category?: string;
     date?: string;
+    priority?: "alta" | "media" | "baixa";
   };
   onToggle: (id: string) => void;
   onDelete: (id: string) => void; 
   onEdit: (id: string, newTitle: string, newCategory: string, newDate: string) => void;
+  onMove: (id: string, direction: "up" | "down") => void;
+  isFirst: boolean;
+  isLast: boolean;
 }
 
-export const MissionCard = ({ mission, onToggle, onDelete, onEdit }: MissionCardProps) => {
+export const MissionCard = ({ mission, onToggle, onDelete, onEdit, onMove, isFirst, isLast }: MissionCardProps) => {
   const [isAnimating, setIsAnimating] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   
@@ -47,6 +61,10 @@ export const MissionCard = ({ mission, onToggle, onDelete, onEdit }: MissionCard
 
   const categoryKey = mission.category && CATEGORY_CONFIG[mission.category] ? mission.category : "outros";
   const categoryStyle = CATEGORY_CONFIG[categoryKey];
+  
+  const priorityKey = mission.priority || "media";
+  const priorityStyle = PRIORITY_CONFIG[priorityKey];
+  const PriorityIcon = priorityStyle.icon;
   const CategoryIcon = categoryStyle.icon;
 
   const handleToggle = () => {
@@ -143,10 +161,15 @@ export const MissionCard = ({ mission, onToggle, onDelete, onEdit }: MissionCard
                 </span>
               </div>
               
-              <div className="flex items-center gap-2 mt-1">
+              <div className="flex items-center gap-2 mt-1 flex-wrap">
                 <span className={cn("flex items-center px-2 py-0.5 rounded-full text-xs font-medium gap-1", categoryStyle.bg, categoryStyle.color)}>
                   <CategoryIcon className="w-3 h-3" />
                   {categoryStyle.label}
+                </span>
+                
+                <span className={cn("flex items-center px-2 py-0.5 rounded-full text-xs font-medium gap-1", priorityStyle.bg, priorityStyle.color)}>
+                  <PriorityIcon className="w-3 h-3" />
+                  {priorityStyle.label}
                 </span>
                 
                 {mission.date && (
@@ -168,6 +191,26 @@ export const MissionCard = ({ mission, onToggle, onDelete, onEdit }: MissionCard
             </>
           ) : (
             <>
+              <div className="flex flex-col gap-0.5 mr-1">
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  onClick={() => onMove(mission.id, "up")} 
+                  disabled={isFirst}
+                  className="h-6 w-6 text-gray-400 hover:text-primary hover:bg-primary/10 disabled:opacity-30"
+                >
+                  <ChevronUp className="h-4 w-4" />
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  onClick={() => onMove(mission.id, "down")} 
+                  disabled={isLast}
+                  className="h-6 w-6 text-gray-400 hover:text-primary hover:bg-primary/10 disabled:opacity-30"
+                >
+                  <ChevronDown className="h-4 w-4" />
+                </Button>
+              </div>
               <Button variant="ghost" size="icon" onClick={() => setIsEditing(true)} className="h-8 w-8 text-gray-400 hover:text-blue-500 hover:bg-blue-50"><Pencil className="h-4 w-4" /></Button>
               <Button variant="ghost" size="icon" onClick={() => onDelete(mission.id)} className="h-8 w-8 text-gray-400 hover:text-red-500 hover:bg-red-50"><Trash2 className="h-4 w-4" /></Button>
             </>

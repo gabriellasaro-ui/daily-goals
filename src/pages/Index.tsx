@@ -12,6 +12,7 @@ interface Mission {
   completed: boolean;
   category?: string;
   date?: string;
+  priority?: "alta" | "media" | "baixa";
 }
 
 const Index = () => {
@@ -63,17 +64,32 @@ const Index = () => {
     toast.success("Missão atualizada!");
   };
 
-  const handleAddMission = (title: string, category: string, date: string) => {
+  const handleAddMission = (title: string, category: string, date: string, priority: "alta" | "media" | "baixa") => {
     const newMission: Mission = {
       id: Date.now().toString(),
       title,
       completed: false,
       category,
       date,
+      priority,
     };
     setMissions((prev) => [...prev, newMission]);
     toast.success("Missão criada!");
-    setActiveFilter("todas"); // Volta para "todas" para você ver a missão nova
+    setActiveFilter("todas");
+  };
+
+  const handleMoveMission = (id: string, direction: "up" | "down") => {
+    setMissions((prev) => {
+      const index = prev.findIndex((m) => m.id === id);
+      if (index === -1) return prev;
+      if (direction === "up" && index === 0) return prev;
+      if (direction === "down" && index === prev.length - 1) return prev;
+      
+      const newMissions = [...prev];
+      const swapIndex = direction === "up" ? index - 1 : index + 1;
+      [newMissions[index], newMissions[swapIndex]] = [newMissions[swapIndex], newMissions[index]];
+      return newMissions;
+    });
   };
 
   const completedCount = missions.filter((m) => m.completed).length;
@@ -149,13 +165,16 @@ const Index = () => {
               </p>
             </div>
           ) : (
-            filteredMissions.map((mission) => (
+            filteredMissions.map((mission, index) => (
               <MissionCard
                 key={mission.id}
                 mission={mission}
                 onToggle={handleToggleMission}
                 onDelete={handleDeleteMission} 
                 onEdit={handleEditMission}
+                onMove={handleMoveMission}
+                isFirst={index === 0}
+                isLast={index === filteredMissions.length - 1}
               />
             ))
           )}
