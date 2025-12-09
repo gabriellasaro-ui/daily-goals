@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { SortableMissionCard } from "@/components/SortableMissionCard";
 import { ProgressBar } from "@/components/ProgressBar";
 import { AddMissionForm } from "@/components/AddMissionForm";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { Target, Filter, ArrowUpDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -127,7 +128,12 @@ const Index = () => {
   const completedCount = missions.filter((m) => m.completed).length;
 
   return (
-    <div className="min-h-screen bg-background py-8 px-4">
+    <div className="min-h-screen bg-background py-8 px-4 relative">
+      {/* Theme Toggle */}
+      <div className="absolute top-4 right-4">
+        <ThemeToggle />
+      </div>
+      
       <div className="max-w-3xl mx-auto space-y-8">
         
         {/* Cabeçalho */}
