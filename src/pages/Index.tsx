@@ -3,7 +3,8 @@ import { SortableMissionCard } from "@/components/SortableMissionCard";
 import { ProgressBar } from "@/components/ProgressBar";
 import { AddMissionForm } from "@/components/AddMissionForm";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { Target, Filter, ArrowUpDown } from "lucide-react";
+import { useNotifications } from "@/hooks/useNotifications";
+import { Target, Filter, ArrowUpDown, Bell, BellOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import {
@@ -28,6 +29,7 @@ interface Mission {
   completed: boolean;
   category?: string;
   date?: string;
+  time?: string;
   priority?: "alta" | "media" | "baixa";
 }
 
@@ -43,6 +45,21 @@ const Index = () => {
   });
 
   const [activeFilter, setActiveFilter] = useState("todas");
+  const [notificationsEnabled, setNotificationsEnabled] = useState(
+    typeof window !== "undefined" && "Notification" in window && Notification.permission === "granted"
+  );
+
+  const { requestPermission } = useNotifications(missions);
+
+  const handleEnableNotifications = async () => {
+    const granted = await requestPermission();
+    setNotificationsEnabled(granted);
+    if (granted) {
+      toast.success("Notificações ativadas! Você receberá lembretes.");
+    } else {
+      toast.error("Permissão para notificações negada.");
+    }
+  };
 
   useEffect(() => {
     localStorage.setItem("minhas-missoes", JSON.stringify(missions));
@@ -100,24 +117,25 @@ const Index = () => {
     toast.success("Missão removida!");
   };
 
-  const handleEditMission = (id: string, newTitle: string, newCategory: string, newDate: string) => {
+  const handleEditMission = (id: string, newTitle: string, newCategory: string, newDate: string, newTime: string) => {
     setMissions((prev) =>
       prev.map((mission) =>
         mission.id === id
-          ? { ...mission, title: newTitle, category: newCategory, date: newDate }
+          ? { ...mission, title: newTitle, category: newCategory, date: newDate, time: newTime }
           : mission
       )
     );
     toast.success("Missão atualizada!");
   };
 
-  const handleAddMission = (title: string, category: string, date: string, priority: "alta" | "media" | "baixa") => {
+  const handleAddMission = (title: string, category: string, date: string, time: string, priority: "alta" | "media" | "baixa") => {
     const newMission: Mission = {
       id: Date.now().toString(),
       title,
       completed: false,
       category,
       date,
+      time,
       priority,
     };
     setMissions((prev) => [...prev, newMission]);
@@ -129,8 +147,19 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background py-8 px-4 relative">
-      {/* Theme Toggle */}
-      <div className="absolute top-4 right-4">
+      {/* Theme Toggle & Notifications */}
+      <div className="absolute top-4 right-4 flex gap-2">
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={handleEnableNotifications}
+          className={`rounded-full h-10 w-10 bg-card border-border shadow-sm ${
+            notificationsEnabled ? "text-green-500" : "text-muted-foreground"
+          }`}
+          title={notificationsEnabled ? "Notificações ativadas" : "Ativar notificações"}
+        >
+          {notificationsEnabled ? <Bell className="h-5 w-5" /> : <BellOff className="h-5 w-5" />}
+        </Button>
         <ThemeToggle />
       </div>
       
