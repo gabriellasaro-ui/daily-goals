@@ -1,10 +1,25 @@
 import { useState, useEffect } from "react";
-import { MissionCard } from "@/components/MissionCard";
+import { SortableMissionCard } from "@/components/SortableMissionCard";
 import { ProgressBar } from "@/components/ProgressBar";
 import { AddMissionForm } from "@/components/AddMissionForm";
-import { Target, Filter } from "lucide-react";
-import { Button } from "@/components/ui/button"; // Botão para os filtros
+import { Target, Filter, ArrowUpDown } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
 
 interface Mission {
   id: string;
@@ -15,6 +30,8 @@ interface Mission {
   priority?: "alta" | "media" | "baixa";
 }
 
+const PRIORITY_ORDER = { alta: 0, media: 1, baixa: 2 };
+
 const Index = () => {
   const [missions, setMissions] = useState<Mission[]>(() => {
     const saved = localStorage.getItem("minhas-missoes");
@@ -24,19 +41,48 @@ const Index = () => {
     return []; 
   });
 
-  // Estado para controlar qual filtro está ativo
   const [activeFilter, setActiveFilter] = useState("todas");
 
   useEffect(() => {
     localStorage.setItem("minhas-missoes", JSON.stringify(missions));
   }, [missions]);
 
-  // Lógica de filtragem: decide quais missões aparecem na tela
   const filteredMissions = missions.filter((mission) => {
     if (activeFilter === "todas") return true;
     const category = mission.category || "outros";
     return category === activeFilter;
   });
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      setMissions((items) => {
+        const oldIndex = items.findIndex((item) => item.id === active.id);
+        const newIndex = items.findIndex((item) => item.id === over.id);
+        return arrayMove(items, oldIndex, newIndex);
+      });
+    }
+  };
+
+  const handleSortByPriority = () => {
+    setMissions((prev) => {
+      const sorted = [...prev].sort((a, b) => {
+        const priorityA = PRIORITY_ORDER[a.priority || "media"];
+        const priorityB = PRIORITY_ORDER[b.priority || "media"];
+        return priorityA - priorityB;
+      });
+      return sorted;
+    });
+    toast.success("Missões ordenadas por prioridade!");
+  };
 
   const handleToggleMission = (id: string) => {
     setMissions((prev) =>
@@ -78,20 +124,6 @@ const Index = () => {
     setActiveFilter("todas");
   };
 
-  const handleMoveMission = (id: string, direction: "up" | "down") => {
-    setMissions((prev) => {
-      const index = prev.findIndex((m) => m.id === id);
-      if (index === -1) return prev;
-      if (direction === "up" && index === 0) return prev;
-      if (direction === "down" && index === prev.length - 1) return prev;
-      
-      const newMissions = [...prev];
-      const swapIndex = direction === "up" ? index - 1 : index + 1;
-      [newMissions[index], newMissions[swapIndex]] = [newMissions[swapIndex], newMissions[index]];
-      return newMissions;
-    });
-  };
-
   const completedCount = missions.filter((m) => m.completed).length;
 
   return (
@@ -125,7 +157,7 @@ const Index = () => {
           <AddMissionForm onAdd={handleAddMission} />
         </div>
 
-        {/* --- FILTROS DE CATEGORIA (NOVO) --- */}
+        {/* Filtros e Ordenação */}
         <div className="flex flex-wrap gap-2 items-center justify-center animate-in fade-in slide-in-from-bottom duration-700 delay-200">
           <span className="text-sm text-muted-foreground flex items-center mr-2">
             <Filter className="w-4 h-4 mr-1" /> Filtrar:
@@ -147,9 +179,19 @@ const Index = () => {
               {filter.label}
             </Button>
           ))}
+          
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={handleSortByPriority}
+            className="rounded-full h-8 text-xs px-4 ml-2"
+          >
+            <ArrowUpDown className="w-3 h-3 mr-1" />
+            Ordenar por Prioridade
+          </Button>
         </div>
 
-        {/* Lista Filtrada */}
+        {/* Lista com Drag and Drop */}
         <div className="space-y-3 animate-in fade-in slide-in-from-bottom duration-700 delay-300">
           {missions.length === 0 ? (
             <div className="text-center py-12 bg-card/50 rounded-xl border border-dashed border-muted-foreground/25">
@@ -165,18 +207,26 @@ const Index = () => {
               </p>
             </div>
           ) : (
-            filteredMissions.map((mission, index) => (
-              <MissionCard
-                key={mission.id}
-                mission={mission}
-                onToggle={handleToggleMission}
-                onDelete={handleDeleteMission} 
-                onEdit={handleEditMission}
-                onMove={handleMoveMission}
-                isFirst={index === 0}
-                isLast={index === filteredMissions.length - 1}
-              />
-            ))
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEnd}
+            >
+              <SortableContext
+                items={filteredMissions.map((m) => m.id)}
+                strategy={verticalListSortingStrategy}
+              >
+                {filteredMissions.map((mission) => (
+                  <SortableMissionCard
+                    key={mission.id}
+                    mission={mission}
+                    onToggle={handleToggleMission}
+                    onDelete={handleDeleteMission}
+                    onEdit={handleEditMission}
+                  />
+                ))}
+              </SortableContext>
+            </DndContext>
           )}
         </div>
       </div>
