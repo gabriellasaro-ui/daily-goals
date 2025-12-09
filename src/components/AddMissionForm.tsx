@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, AlertTriangle, Minus, ChevronDown } from "lucide-react";
+import { Plus, AlertTriangle, Minus, ChevronDown, Clock } from "lucide-react";
 
 const CATEGORIES = [
   { id: "trabalho", label: "Trabalho", color: "bg-blue-500 hover:bg-blue-600", text: "text-blue-500" },
@@ -17,12 +17,13 @@ const PRIORITIES = [
 ];
 
 interface AddMissionFormProps {
-  onAdd: (title: string, category: string, date: string, priority: "alta" | "media" | "baixa") => void;
+  onAdd: (title: string, category: string, date: string, time: string, priority: "alta" | "media" | "baixa") => void;
 }
 
 export const AddMissionForm = ({ onAdd }: AddMissionFormProps) => {
   const [title, setTitle] = useState("");
   const [date, setDate] = useState("");
+  const [time, setTime] = useState("");
   const [selectedCategory, setSelectedCategory] = useState(CATEGORIES[3].id);
   const [selectedPriority, setSelectedPriority] = useState<"alta" | "media" | "baixa">("media");
 
@@ -30,9 +31,10 @@ export const AddMissionForm = ({ onAdd }: AddMissionFormProps) => {
     e.preventDefault();
     if (title.trim()) {
       const missionDate = date || new Date().toISOString().split('T')[0];
-      onAdd(title.trim(), selectedCategory, missionDate, selectedPriority);
+      onAdd(title.trim(), selectedCategory, missionDate, time, selectedPriority);
       setTitle("");
       setDate("");
+      setTime("");
       setSelectedCategory("outros");
       setSelectedPriority("media");
     }
@@ -40,21 +42,29 @@ export const AddMissionForm = ({ onAdd }: AddMissionFormProps) => {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-3 bg-card p-4 rounded-xl border shadow-sm">
-      <div className="flex gap-2">
+      <div className="flex gap-2 flex-wrap">
         <Input
           type="text"
           placeholder="Nova missão..."
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          className="flex-1 h-10"
+          className="flex-1 min-w-[150px] h-10"
         />
-        <div className="relative">
-            <Input 
-                type="date" 
-                value={date} 
-                onChange={(e) => setDate(e.target.value)}
-                className="w-auto h-10"
-            />
+        <Input 
+          type="date" 
+          value={date} 
+          onChange={(e) => setDate(e.target.value)}
+          className="w-auto h-10"
+        />
+        <div className="relative flex items-center">
+          <Clock className="absolute left-2 h-4 w-4 text-muted-foreground pointer-events-none" />
+          <Input 
+            type="time" 
+            value={time} 
+            onChange={(e) => setTime(e.target.value)}
+            className="w-auto h-10 pl-8"
+            placeholder="Hora"
+          />
         </div>
         <Button type="submit" size="icon" className="h-10 w-10 bg-primary hover:bg-primary/90">
           <Plus className="h-5 w-5" />
@@ -72,7 +82,7 @@ export const AddMissionForm = ({ onAdd }: AddMissionFormProps) => {
               ${
                 selectedCategory === cat.id
                   ? `${cat.color} text-white border-transparent shadow-sm`
-                  : `bg-white ${cat.text} border-gray-200 hover:bg-gray-50`
+                  : `bg-card ${cat.text} border-border hover:bg-muted`
               }
             `}
           >
@@ -95,7 +105,7 @@ export const AddMissionForm = ({ onAdd }: AddMissionFormProps) => {
                 ${
                   selectedPriority === pri.id
                     ? `${pri.color} text-white border-transparent shadow-sm`
-                    : `bg-white ${pri.text} border-gray-200 hover:bg-gray-50`
+                    : `bg-card ${pri.text} border-border hover:bg-muted`
                 }
               `}
             >

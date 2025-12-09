@@ -17,7 +17,8 @@ import {
   AlertTriangle,
   Minus,
   ChevronDown,
-  GripVertical
+  GripVertical,
+  Clock
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -41,11 +42,12 @@ export interface MissionCardProps {
     completed: boolean;
     category?: string;
     date?: string;
+    time?: string;
     priority?: "alta" | "media" | "baixa";
   };
   onToggle: (id: string) => void;
   onDelete: (id: string) => void; 
-  onEdit: (id: string, newTitle: string, newCategory: string, newDate: string) => void;
+  onEdit: (id: string, newTitle: string, newCategory: string, newDate: string, newTime: string) => void;
   dragHandleProps?: React.HTMLAttributes<HTMLButtonElement>;
 }
 
@@ -56,6 +58,7 @@ export const MissionCard = ({ mission, onToggle, onDelete, onEdit, dragHandlePro
   const [editedTitle, setEditedTitle] = useState(mission.title);
   const [editedCategory, setEditedCategory] = useState(mission.category || "outros");
   const [editedDate, setEditedDate] = useState(mission.date || new Date().toISOString().split('T')[0]);
+  const [editedTime, setEditedTime] = useState(mission.time || "");
 
   const categoryKey = mission.category && CATEGORY_CONFIG[mission.category] ? mission.category : "outros";
   const categoryStyle = CATEGORY_CONFIG[categoryKey];
@@ -76,7 +79,7 @@ export const MissionCard = ({ mission, onToggle, onDelete, onEdit, dragHandlePro
 
   const handleSave = () => {
     if (editedTitle.trim()) {
-      onEdit(mission.id, editedTitle, editedCategory, editedDate);
+      onEdit(mission.id, editedTitle, editedCategory, editedDate, editedTime);
       setIsEditing(false);
     }
   };
@@ -128,7 +131,13 @@ export const MissionCard = ({ mission, onToggle, onDelete, onEdit, dragHandlePro
                     type="date" 
                     value={editedDate}
                     onChange={(e) => setEditedDate(e.target.value)}
-                    className="w-full h-9 text-sm"
+                    className="flex-1 h-9 text-sm"
+                  />
+                  <Input 
+                    type="time" 
+                    value={editedTime}
+                    onChange={(e) => setEditedTime(e.target.value)}
+                    className="w-24 h-9 text-sm"
                   />
               </div>
               <div className="flex gap-1 flex-wrap">
@@ -171,9 +180,15 @@ export const MissionCard = ({ mission, onToggle, onDelete, onEdit, dragHandlePro
                 </span>
                 
                 {mission.date && (
-                  <span className="flex items-center text-xs text-gray-400 font-medium">
+                  <span className="flex items-center text-xs text-muted-foreground font-medium">
                     <CalendarDays className="w-3 h-3 mr-1" />
                     {formatDate(mission.date)}
+                    {mission.time && (
+                      <>
+                        <Clock className="w-3 h-3 ml-2 mr-1" />
+                        {mission.time}
+                      </>
+                    )}
                   </span>
                 )}
               </div>
