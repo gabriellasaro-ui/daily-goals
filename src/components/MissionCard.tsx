@@ -14,10 +14,10 @@ import {
   BookOpen, 
   Tag,
   CalendarDays,
-  ChevronUp,
-  ChevronDown,
   AlertTriangle,
-  Minus
+  Minus,
+  ChevronDown,
+  GripVertical
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -34,7 +34,7 @@ const PRIORITY_CONFIG: Record<string, { label: string; icon: any; color: string;
   baixa: { label: "Baixa", icon: ChevronDown, color: "text-emerald-500", bg: "bg-emerald-100" },
 };
 
-interface MissionCardProps {
+export interface MissionCardProps {
   mission: {
     id: string;
     title: string;
@@ -46,12 +46,10 @@ interface MissionCardProps {
   onToggle: (id: string) => void;
   onDelete: (id: string) => void; 
   onEdit: (id: string, newTitle: string, newCategory: string, newDate: string) => void;
-  onMove: (id: string, direction: "up" | "down") => void;
-  isFirst: boolean;
-  isLast: boolean;
+  dragHandleProps?: React.HTMLAttributes<HTMLButtonElement>;
 }
 
-export const MissionCard = ({ mission, onToggle, onDelete, onEdit, onMove, isFirst, isLast }: MissionCardProps) => {
+export const MissionCard = ({ mission, onToggle, onDelete, onEdit, dragHandleProps }: MissionCardProps) => {
   const [isAnimating, setIsAnimating] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   
@@ -191,26 +189,14 @@ export const MissionCard = ({ mission, onToggle, onDelete, onEdit, onMove, isFir
             </>
           ) : (
             <>
-              <div className="flex flex-col gap-0.5 mr-1">
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  onClick={() => onMove(mission.id, "up")} 
-                  disabled={isFirst}
-                  className="h-6 w-6 text-gray-400 hover:text-primary hover:bg-primary/10 disabled:opacity-30"
+              {dragHandleProps && (
+                <button
+                  {...dragHandleProps}
+                  className="cursor-grab active:cursor-grabbing p-1 text-gray-400 hover:text-gray-600 touch-none"
                 >
-                  <ChevronUp className="h-4 w-4" />
-                </Button>
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  onClick={() => onMove(mission.id, "down")} 
-                  disabled={isLast}
-                  className="h-6 w-6 text-gray-400 hover:text-primary hover:bg-primary/10 disabled:opacity-30"
-                >
-                  <ChevronDown className="h-4 w-4" />
-                </Button>
-              </div>
+                  <GripVertical className="h-5 w-5" />
+                </button>
+              )}
               <Button variant="ghost" size="icon" onClick={() => setIsEditing(true)} className="h-8 w-8 text-gray-400 hover:text-blue-500 hover:bg-blue-50"><Pencil className="h-4 w-4" /></Button>
               <Button variant="ghost" size="icon" onClick={() => onDelete(mission.id)} className="h-8 w-8 text-gray-400 hover:text-red-500 hover:bg-red-50"><Trash2 className="h-4 w-4" /></Button>
             </>
